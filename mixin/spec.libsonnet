@@ -113,6 +113,13 @@
 			},
 		},
 	},
+	setStakingValidatorCount(count): {
+		_genesis+: {
+			staking+: {
+				validatorCount: count,
+			},
+		},
+	},
 	resetAuthorMappingMappings: {
 		_genesis+: {
 			authorMapping+: {
@@ -282,6 +289,7 @@
 				],
 				for [?, node] in root.nodes
 			],
+			$.setStakingValidatorCount(std.length(root.nodes)),
 		])(prev) else prev,
 		function(prev) bdk.mixer([
 			[
@@ -310,6 +318,10 @@
 						hrmp_max_parathread_outbound_channels: 20,
 						hrmp_max_parachain_inbound_channels: 20,
 						hrmp_max_parathread_inbound_channels: 20,
+						pvf_checking_enabled: true,
+						max_validators: 300,
+						max_validators_per_core: 20,
+						scheduling_lookahead: 1,
 					},
 				},
 			},
