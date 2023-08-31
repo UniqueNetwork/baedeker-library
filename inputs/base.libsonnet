@@ -34,6 +34,7 @@ local mergedChains = (prev + mixinAllChains(prev, function(chain, path) genesisM
 			hostname: hostname,
 			wantedKeys:
 				if node?.wantedKeys == 'para' then k.paraWantedKeys($)
+				else if node?.wantedKeys == 'para-ed' then k.paraWantedKeys($, ed = true)
 				else if node?.wantedKeys == 'relay' then k.relayWantedKeys($)
 				else if std.isObject(node?.wantedKeys) then node?.wantedKeys
 				else if !('wantedKeys' in node) then {}

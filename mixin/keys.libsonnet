@@ -29,11 +29,13 @@ needController({validatorIdAssignment, ...}) =
 			beefy: 'beef',
 		},
 	},
-	paraWantedKeys(root): {
+	paraWantedKeys(root, ed = false): {
 		[if needController(root) then '_controller']: root.signatureSchema,
 		_stash: root.signatureSchema,
 
-		aura: 'Sr25519',
+		// COMPAT: asset-hub on polkadot uses ed25519 instead of sr25519 for session keys.
+		// https://github.com/paritytech/cumulus/blob/d4bb2215bb28ee05159c4c7df1b3435177b5bf4e/parachains/common/src/lib.rs#L57-L62
+		aura: if !ed then 'Sr25519' else 'Ed25519',
 
 		sessionKeys: {
 			aura: 'aura',
