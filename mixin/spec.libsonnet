@@ -302,6 +302,18 @@
 				for ch in hrmp
 			],
 		])(prev),
+		function(prev) if 'configuration' in prev._genesis then prev {
+			_genesis+: {
+				configuration+: {
+					config+: {
+						hrmp_max_parachain_outbound_channels: 20,
+						hrmp_max_parathread_outbound_channels: 20,
+						hrmp_max_parachain_inbound_channels: 20,
+						hrmp_max_parathread_inbound_channels: 20,
+					},
+				},
+			},
+		} else prev,
 		// function(prev) std.trace(prev),
 	],
 	polkaLaunchPara(root): $.polkaLaunchShared(root) + [
