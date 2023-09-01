@@ -350,7 +350,7 @@
 		function(prev) if 'authorMapping' in prev._genesis then bdk.mixer([
 			$.resetAuthorMappingMappings,
 			[
-				$.addAuthorMappingMapping([node.keys.aura, node.wallets.stash]),
+				$.addAuthorMappingMapping([node.keys?.aura ?? node.keys.nmbs, node.wallets.stash]),
 				for [?, node] in root.nodes
 			],
 		])(prev) else prev,

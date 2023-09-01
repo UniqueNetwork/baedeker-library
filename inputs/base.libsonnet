@@ -11,7 +11,7 @@ local WELLKNOWN_CODE = '0x3a636f6465';
 
 local genesisMixin = {
 	// TODO: Process from wasm once native runtime free world lands.
-	specJson: bdk.processSpec(self.bin, self.spec),
+	specJson: cql.description('<build spec for %s>' % self.path, bdk.processSpec(self.bin, self.spec)),
 	genesisWasm: self.specJson.genesis.raw.top[WELLKNOWN_CODE],
 	genesisWasmData: cql.runtimeWasm(self.genesisWasm),
 	genesisStateVersion: self.genesisWasmData.version.state_version,
@@ -35,6 +35,7 @@ local mergedChains = (prev + mixinAllChains(prev, function(chain, path) genesisM
 			wantedKeys:
 				if node?.wantedKeys == 'para' then k.paraWantedKeys($)
 				else if node?.wantedKeys == 'para-ed' then k.paraWantedKeys($, ed = true)
+				else if node?.wantedKeys == 'para-nimbus' then k.paraWantedKeys($, nimbus = true)
 				else if node?.wantedKeys == 'relay' then k.relayWantedKeys($)
 				else if std.isObject(node?.wantedKeys) then node?.wantedKeys
 				else if !('wantedKeys' in node) then {}
