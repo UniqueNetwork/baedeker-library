@@ -11,6 +11,13 @@
 			for [nodename, node] in chain?.nodes
 		},
 	} + mixinChain(chain)),
+	mixinRolloutNodes(chain, mixin, mixinChain = function(v) {}, percent = 1, leave = null): $.mixinAllChains(chain, function(chain, path) {
+		nodes+: local length = std.length(chain?.nodes ?? {}); {
+			[nodename]+: if ((i + 1) / length <= percent) && (leave == null || i < length - leave) then mixin(node)
+			else {}
+			for [i, {key: nodename, value: node}] in std.mapWithIndex(function(i, v) [i, v], std.objectKeysValues(chain?.nodes))
+		},
+	} + mixinChain(chain)),
 	flattenNodes(chain, parent = null): std.join([], [
 		[
 			node + {
