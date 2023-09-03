@@ -28,6 +28,8 @@
 		},
 		// COMPAT: cumulus template
 		[if 'para_id' in prev then 'para_id']: id,
+		// COMPAT: some chains use camelCase here
+		[if 'paraId' in prev then 'paraId']: id,
 	},
 	resetSessionKeys: {
 		_genesis+: {
@@ -187,6 +189,8 @@
 		// COMPAT: cumulus template
 		// In baedeker, relay chain config is passed explicitly, rendering this argument to not being used
 		[if 'relay_chain' in root then 'relay_chain']: 'not_used',
+		// COMPAT: some chains use camelCase here
+		[if 'relayChain' in root then 'relayChain']: 'not_used',
 
 		_networkingWasReset:: true,
 	},
