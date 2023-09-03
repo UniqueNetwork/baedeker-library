@@ -234,16 +234,25 @@
 	// FIXME: Merge polkaLaunchRelay and polkaLaunchPara?
 	// Due to refactoring, pararelays are somewhat supported.
 
-	polkaLaunchShared(root): [
+	polkaLaunchShared(root): local
+		isEth = root.signatureSchema == 'Ethereum',
+		// FIXME: support soft derivations in ecdsaSeed, then unhardcode private keys here.
+		// Soft derivations here are
+		//  Alith:     m/44'/60'/0'/0/0
+		//  Baltathar: m/44'/60'/0'/0/1
+		// Root mnemonic for both is standard substrate "bottom drive obey lake curtain smoke basket hold race lonely fit walk", which is implied by *Seed functions
+
+		// Alice/Alith
+		accountA = root.addressSeed(if !isEth then '//Alice' else '0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133'),
+		// Bob/Baltathar
+		accountB = root.addressSeed(if !isEth then '//Bob' else '0x8075991ce870b93a8870eca0c0f91913d12f47948ca0fd25b49c6fa7cdbeee8b'),
+	; [
 		function(prev) if 'sudo' in prev._genesis then bdk.mixer([
-			// On moonbeam it is not alice, but alith, which requires soft derivation path,
-			// which is not even supported due to (see FIXME on cql.ecdsaSeed)
-			// TODO: Implement soft derivations in cql.ecdsaSeed, and add another account on `root.signatureSchema == 'Ethereum'`?
-			$.setSudo(root.addressSeed('//Alice')),
+			$.setSudo(accountA),
 		])(prev) else prev,
 		$.resetBalances,
-		$.giveBalance(root.addressSeed('//Alice'), 2000000000000000000000000000000),
-		$.giveBalance(root.addressSeed('//Bob'), 2000000000000000000000000000000),
+		$.giveBalance(accountA, 2000000000000000000000000000000),
+		$.giveBalance(accountB, 2000000000000000000000000000000),
 		// Regardless of validator id assignment, every method (staking/collator-selection/etc) wants stash to have some
 		// money.
 		[
