@@ -36,6 +36,8 @@ needController({validatorIdAssignment, ...}) =
 		// COMPAT: asset-hub on polkadot uses ed25519 instead of sr25519 for session keys.
 		// https://github.com/paritytech/cumulus/blob/d4bb2215bb28ee05159c4c7df1b3435177b5bf4e/parachains/common/src/lib.rs#L57-L62
 		[if nimbus then 'nmbs' else 'aura']: if ed then 'Ed25519' else 'Sr25519',
+		// COMPAT: moonbeam only supports setting nimbus key in genesis, yet rand key is required.
+		[if nimbus then 'rand']: {alias: 'nmbs'},
 
 		sessionKeys: {
 			aura: 'aura',
