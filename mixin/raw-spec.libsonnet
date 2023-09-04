@@ -5,6 +5,7 @@ local
 	unwrapNewtype(struct) = local names = std.objectFields(struct);
 		if std.length(names) == 1 then struct[names[0]]
 		else struct,
+	WELLKNOWN_CODE = '0x3a636f6465',
 ;
 
 {
@@ -151,6 +152,16 @@ local
 				Invulnerables+: [cql.ss58(key)],
 			},
 		}
+	},
+
+	setCodeRaw(code): function(prev) prev {
+		genesis+: {
+			raw+: {
+				top+: {
+					[WELLKNOWN_CODE]: code,
+				},
+			},
+		},
 	},
 
 	// Compatible, as storage remains the same
