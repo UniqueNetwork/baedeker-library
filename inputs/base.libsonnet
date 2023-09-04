@@ -24,7 +24,7 @@ local genesisMixin = {
 	// I.e use StashOf of pallet_staking, if staking presents in schema, and so on.
 	validatorIdAssignment: super?.validatorIdAssignment ?? 'none',
 
-	addressSeed(seed): cql.addressSeed(self.signatureSchema, seed, self.ss58Format),
+	addressSeed(seed):: cql.addressSeed(self.signatureSchema, seed, self.ss58Format),
 };
 
 local mergedChains = (prev + mixinAllChains(prev, function(chain, path) genesisMixin + {
