@@ -243,9 +243,13 @@
 		// Root mnemonic for both is standard substrate "bottom drive obey lake curtain smoke basket hold race lonely fit walk", which is implied by *Seed functions
 
 		// Alice/Alith
-		accountA = root.addressSeed(if !isEth then '//Alice' else '0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133'),
+		accountA = if !isEth then root.addressSeed('//Alice') else '0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac',
 		// Bob/Baltathar
-		accountB = root.addressSeed(if !isEth then '//Bob' else '0x8075991ce870b93a8870eca0c0f91913d12f47948ca0fd25b49c6fa7cdbeee8b'),
+		accountB = if !isEth then root.addressSeed('//Bob') else '0x3Cd0A705a2DC65e5b1E1205896BaA2be8A07c6e0',
+		// Charlie/Charleth
+		accountC = if !isEth then root.addressSeed('//Charlie') else '0x798d4Ba9baf0064Ec19eB4F0a1a45785ae9D6DFc',
+		// Dave/Dorothy
+		accountD = if !isEth then root.addressSeed('//Dave') else '0x773539d4Ac0e786233D90A233654ccEE26a613D9',
 	; [
 		function(prev) if 'sudo' in prev._genesis then bdk.mixer([
 			$.setSudo(accountA),
@@ -253,6 +257,8 @@
 		$.resetBalances,
 		$.giveBalance(accountA, 2000000000000000000000000000000),
 		$.giveBalance(accountB, 2000000000000000000000000000000),
+		$.giveBalance(accountC, 2000000000000000000000000000000),
+		$.giveBalance(accountD, 2000000000000000000000000000000),
 		// Regardless of validator id assignment, every method (staking/collator-selection/etc) wants stash to have some
 		// money.
 		[
