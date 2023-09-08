@@ -20,6 +20,11 @@ prev + {
 		] + [
 			'%s_URL=ws://%s/%s/' % [std.strReplace(std.asciiUpper(chain.path), '-', '_'), balancerUrl, chain.path]
 			for chain in flattenChains(prev)
+		] + [
+			'%s_STASH=%s' % [std.strReplace(std.asciiUpper(node.hostname), '-', '_'), node.wallets.stash]
+			for chain in flattenChains(prev)
+			if 'paraId' in chain
+			for node in flattenNodes(chain)
 		] + ['']),
 	},
 }
