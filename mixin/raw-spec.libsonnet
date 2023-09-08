@@ -40,7 +40,7 @@ local
 			},
 			// Full reset
 			ParachainSystem: {},
-			Authorship: {},
+			[if 'Authorship' in prev._storage then 'Authorship']: {},
 		},
 	},
 
@@ -53,6 +53,7 @@ local
 	},
 	giveBalance(address, amount): {
 		_storage+: {
+			// Not updating total issuance: no big difference.
 			System+: {
 				Account+: {
 					[address]+: {
@@ -65,7 +66,7 @@ local
 							free+: std.bigint(amount),
 							reserved: super?.reserved ?? std.bigint(0),
 							frozen: super?.reserved ?? std.bigint(0),
-							flags: super?.flags ?? 0,
+							flags: super?.flags ?? std.bigint(0),
 						},
 					},
 				},
@@ -191,7 +192,10 @@ local
 		$.setSudo(account('//Alice')),
 		// Will break everything
 		// $.resetBalances,
-		$.giveBalance(account('//Alice'), 1000000000000000000),
+		$.giveBalance(account('//Alice'), 2000000000000000000000000000000),
+		$.giveBalance(account('//Bob'), 2000000000000000000000000000000),
+		$.giveBalance(account('//Charlie'), 2000000000000000000000000000000),
+		$.giveBalance(account('//Dave'), 2000000000000000000000000000000),
 		$.resetAuraAuthorities,
 		[
 			$.addAuraAuthority(node.keys.aura),
