@@ -55,7 +55,7 @@ local
 		_storage+: {
 			// Not updating total issuance: no big difference.
 			System+: {
-				Account+: {
+				Account+: std.trace('Altering account %s: %s' % [address, super.Account?.[address] ?? '<new>'], {
 					[address]+: {
 						nonce: super?.nonce ?? 0,
 						// Leaks
@@ -69,7 +69,7 @@ local
 							flags: super?.flags ?? std.bigint(0),
 						},
 					},
-				},
+				}),
 			},
 		},
 	},
