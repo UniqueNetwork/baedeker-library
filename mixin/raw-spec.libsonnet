@@ -35,7 +35,7 @@ local
 			[if 'CollatorSelection' in prev._storage then 'CollatorSelection']+: {
 				LastAuthoredBlock: {},
 			},
-			Session+: {
+			[if 'Session' in prev._storage then 'Session']+: {
 				CurrentIndex: 0,
 			},
 			// Full reset
@@ -201,17 +201,19 @@ local
 			$.addAuraAuthority(node.keys.aura),
 			for [?, node] in root.nodes
 		],
-		$.resetSessionKeys,
-		[
-			$.addSessionKey([
-				node.keys.aura,
-				node.keys.aura,
-				{
-					aura: node.keys.aura,
-				},
-			]),
-			for [?, node] in root.nodes
-		],
+		function(prev) bdk.mixer(if 'Session' in prev._storage then [
+			$.resetSessionKeys,
+			[
+				$.addSessionKey([
+					node.keys.aura,
+					node.keys.aura,
+					{
+						aura: node.keys.aura,
+					},
+				]),
+				for [?, node] in root.nodes
+			],
+		] else [])(prev),
 		$.resetInvulnerables,
 		[
 			$.addInvulnerable(node.keys.aura),
