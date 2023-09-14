@@ -36,12 +36,14 @@ prev {
 				};
 				std.join('\n', [
 					'upstream %(name)s-websocket {' % shared,
+					'\tip_hash;',
 					std.join('\n', [
 						'\tserver %s:9944;' % node.hostname
 						for [?, node] in (chain?.nodes ?? {})
 					]),
 					'}',
 					'upstream %(name)s-http {' % shared,
+					'\tip_hash;',
 					std.join('\n', [
 						'\tserver %s:9944;' % node.hostname
 						for [?, node] in (chain?.nodes ?? {})
