@@ -250,6 +250,8 @@
 		accountC = if !isEth then root.addressSeed('//Charlie') else '0x798d4Ba9baf0064Ec19eB4F0a1a45785ae9D6DFc',
 		// Dave/Dorothy
 		accountD = if !isEth then root.addressSeed('//Dave') else '0x773539d4Ac0e786233D90A233654ccEE26a613D9',
+		// Eve/Ethan
+		accountE = if !isEth then root.addressSeed('//Eve') else '0xFf64d3F6efE2317EE2807d223a0Bdc4c0c49dfDB', 
 	; [
 		function(prev) if 'sudo' in prev._genesis then bdk.mixer([
 			$.setSudo(accountA),
@@ -259,6 +261,7 @@
 		$.giveBalance(accountB, 2000000000000000000000000000000),
 		$.giveBalance(accountC, 2000000000000000000000000000000),
 		$.giveBalance(accountD, 2000000000000000000000000000000),
+		$.giveBalance(accountE, 2000000000000000000000000000000),
 		// Regardless of validator id assignment, every method (staking/collator-selection/etc) wants stash to have some
 		// money.
 		[
