@@ -215,7 +215,8 @@
 			runtime:: error 'unsimplify genesis name first',
 		},
 	} else if genesisKind == 'sane-1.5-runtimeGenesis' then {
-		_genesis::: (prev.genesis.runtimeGenesis?.config ?? prev.genesis.runtimeGenesis?.patch) + {system+: {code: '0x42424242'}},
+		_runtimeGenesisKind::: if 'config' in prev.genesis.runtimeGenesis then 'config' else 'patch',
+		_genesis::: prev.genesis.runtimeGenesis[self._runtimeGenesisKind] + {system+: {code: '0x42424242'}},
 		_code::: prev.genesis.runtimeGenesis?.code,
 		genesis+: {
 			runtimeGenesis:: error 'unsimplify genesis name first',
@@ -224,6 +225,7 @@
 
 	unsimplifyGenesisName(): function(prev)
 	prev {
+		_runtimeGenesisKind:: error 'simplify genesis name first',
 		_genesis:: error 'simplify genesis name first',
 		_code:: error 'simplify genesis name first',
 		_genesisKind:: error 'genesis was resimplified',
@@ -250,7 +252,7 @@
 		genesis+: {
 			runtimeGenesis::: {
 				code: prev._code,
-				config: prev._genesis + {
+				[prev._runtimeGenesisKind]: prev._genesis + {
 					system+: {
 						code:: error 'use _code for overriding code!',
 					},
@@ -360,15 +362,18 @@
 				for ch in hrmp
 			],
 		])(prev),
-		function(prev) if 'configuration' in prev._genesis then prev {
+		function(prev) if 'configuration' in prev._genesis then local
+			prevConfig = prev?._genesis.configuration?.config ?? {},
+			ifExists(f, o) = if f in o then f;
+		prev {
 			_genesis+: {
 				configuration+: {
 					config+: {
 						hrmp_max_parachain_outbound_channels: 20,
-						hrmp_max_parathread_outbound_channels: 20,
+						[ifExists('hrmp_max_parathread_outbound_channels', prevConfig)]: 20,
 						hrmp_max_parachain_inbound_channels: 20,
-						hrmp_max_parathread_inbound_channels: 20,
-						pvf_checking_enabled: true,
+						[ifExists('hrmp_max_parathread_inbound_channels', prevConfig)]: 20,
+						[ifExists('pvf_checking_enabled', prevConfig)]: true,
 						max_validators: 300,
 						max_validators_per_core: 20,
 						scheduling_lookahead: 1,
