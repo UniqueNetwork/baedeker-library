@@ -196,38 +196,66 @@
 	},
 
 	simplifyGenesisName(): function(prev)
-	local genesisKind = if 'runtime_genesis_config' in prev.genesis.runtime then 'rococo' else 'sane';
+	local genesisKind = if 'runtimeGenesis' in prev.genesis then 'sane-1.5-runtimeGenesis' else if 'runtime_genesis_config' in prev.genesis.runtime then 'rococo' else 'sane';
 	prev {
 		_genesisKind: genesisKind,
 	} +
 	if genesisKind == 'rococo' then {
-		_genesis::: prev.genesis.runtime.runtime_genesis_config,
+		_genesis::: prev.genesis.runtime.runtime_genesis_config + {system+: {code: '0x42424242'}},
+		_code::: prev.genesis.runtime.runtime_genesis_config.system.code,
 		genesis+: {
 			runtime+: {
 				runtime_genesis_config:: error 'unsimplify genesis name first',
 			},
 		},
-	} else {
-		_genesis::: prev.genesis.runtime,
+	} else if genesisKind == 'sane' then {
+		_genesis::: prev.genesis.runtime + {system+: {code: '0x42424242'}},
+		_code::: prev.genesis.runtime.system.code,
 		genesis+: {
 			runtime:: error 'unsimplify genesis name first',
+		},
+	} else if genesisKind == 'sane-1.5-runtimeGenesis' then {
+		_genesis::: (prev.genesis.runtimeGenesis?.config ?? prev.genesis.runtimeGenesis?.patch) + {system+: {code: '0x42424242'}},
+		_code::: prev.genesis.runtimeGenesis?.code,
+		genesis+: {
+			runtimeGenesis:: error 'unsimplify genesis name first',
 		},
 	},
 
 	unsimplifyGenesisName(): function(prev)
 	prev {
 		_genesis:: error 'simplify genesis name first',
+		_code:: error 'simplify genesis name first',
 		_genesisKind:: error 'genesis was resimplified',
 	} +
-	if prev?._genesisKind == 'rococo' then {
+	if prev?._genesisKind == 'rococo' then assert prev._genesis.system.code == '0x42424242' : 'use _code for overriding code!'; {
 		genesis+: {
 			runtime+: {
-				runtime_genesis_config::: prev._genesis,
+				runtime_genesis_config::: prev._genesis + {
+					system+: {
+						code: prev._code,
+					},
+				},
 			},
 		},
-	} else if prev?._genesisKind == 'sane' then {
+	} else if prev?._genesisKind == 'sane' then assert prev._genesis.system.code == '0x42424242' : 'use _code for overriding code!'; {
 		genesis+: {
-			runtime::: prev._genesis,
+			runtime::: prev._genesis + {
+				system+: {
+					code: prev._code,
+				},
+			},
+		},
+	} else if prev?._genesisKind == 'sane-1.5-runtimeGenesis' then assert prev._genesis.system.code == '0x42424242' : 'use _code for overriding code!'; {
+		genesis+: {
+			runtimeGenesis::: {
+				code: prev._code,
+				config: prev._genesis + {
+					system+: {
+						code:: error 'use _code for overriding code!',
+					},
+				},
+			},
 		},
 	} else error 'unknown genesis kind: %s' % [prev._genesis],
 
