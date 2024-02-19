@@ -196,38 +196,68 @@
 	},
 
 	simplifyGenesisName(): function(prev)
-	local genesisKind = if 'runtime_genesis_config' in prev.genesis.runtime then 'rococo' else 'sane';
+	local genesisKind = if 'runtimeGenesis' in prev.genesis then 'sane-1.5-runtimeGenesis' else if 'runtime_genesis_config' in prev.genesis.runtime then 'rococo' else 'sane';
 	prev {
 		_genesisKind: genesisKind,
 	} +
 	if genesisKind == 'rococo' then {
-		_genesis::: prev.genesis.runtime.runtime_genesis_config,
+		_genesis::: prev.genesis.runtime.runtime_genesis_config + {system+: {code: '0x42424242'}},
+		_code::: prev.genesis.runtime.runtime_genesis_config.system.code,
 		genesis+: {
 			runtime+: {
 				runtime_genesis_config:: error 'unsimplify genesis name first',
 			},
 		},
-	} else {
-		_genesis::: prev.genesis.runtime,
+	} else if genesisKind == 'sane' then {
+		_genesis::: prev.genesis.runtime + {system+: {code: '0x42424242'}},
+		_code::: prev.genesis.runtime.system.code,
 		genesis+: {
 			runtime:: error 'unsimplify genesis name first',
+		},
+	} else if genesisKind == 'sane-1.5-runtimeGenesis' then {
+		_runtimeGenesisKind::: if 'config' in prev.genesis.runtimeGenesis then 'config' else 'patch',
+		_genesis::: prev.genesis.runtimeGenesis[self._runtimeGenesisKind] + {system+: {code: '0x42424242'}},
+		_code::: prev.genesis.runtimeGenesis?.code,
+		genesis+: {
+			runtimeGenesis:: error 'unsimplify genesis name first',
 		},
 	},
 
 	unsimplifyGenesisName(): function(prev)
 	prev {
+		_runtimeGenesisKind:: error 'simplify genesis name first',
 		_genesis:: error 'simplify genesis name first',
+		_code:: error 'simplify genesis name first',
 		_genesisKind:: error 'genesis was resimplified',
 	} +
-	if prev?._genesisKind == 'rococo' then {
+	if prev?._genesisKind == 'rococo' then assert prev._genesis.system.code == '0x42424242' : 'use _code for overriding code!'; {
 		genesis+: {
 			runtime+: {
-				runtime_genesis_config::: prev._genesis,
+				runtime_genesis_config::: prev._genesis + {
+					system+: {
+						code: prev._code,
+					},
+				},
 			},
 		},
-	} else if prev?._genesisKind == 'sane' then {
+	} else if prev?._genesisKind == 'sane' then assert prev._genesis.system.code == '0x42424242' : 'use _code for overriding code!'; {
 		genesis+: {
-			runtime::: prev._genesis,
+			runtime::: prev._genesis + {
+				system+: {
+					code: prev._code,
+				},
+			},
+		},
+	} else if prev?._genesisKind == 'sane-1.5-runtimeGenesis' then assert prev._genesis.system.code == '0x42424242' : 'use _code for overriding code!'; {
+		genesis+: {
+			runtimeGenesis::: {
+				code: prev._code,
+				[prev._runtimeGenesisKind]: prev._genesis + {
+					system+: {
+						code:: error 'use _code for overriding code!',
+					},
+				},
+			},
 		},
 	} else error 'unknown genesis kind: %s' % [prev._genesis],
 
@@ -332,15 +362,18 @@
 				for ch in hrmp
 			],
 		])(prev),
-		function(prev) if 'configuration' in prev._genesis then prev {
+		function(prev) if 'configuration' in prev._genesis then local
+			prevConfig = prev?._genesis.configuration?.config ?? {},
+			ifExists(f, o) = if f in o then f;
+		prev {
 			_genesis+: {
 				configuration+: {
 					config+: {
 						hrmp_max_parachain_outbound_channels: 20,
-						hrmp_max_parathread_outbound_channels: 20,
+						[ifExists('hrmp_max_parathread_outbound_channels', prevConfig)]: 20,
 						hrmp_max_parachain_inbound_channels: 20,
-						hrmp_max_parathread_inbound_channels: 20,
-						pvf_checking_enabled: true,
+						[ifExists('hrmp_max_parathread_inbound_channels', prevConfig)]: 20,
+						[ifExists('pvf_checking_enabled', prevConfig)]: true,
 						max_validators: 300,
 						max_validators_per_core: 20,
 						scheduling_lookahead: 1,
