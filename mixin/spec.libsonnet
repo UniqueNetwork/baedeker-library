@@ -375,8 +375,8 @@
 						[ifExists('hrmp_max_parathread_inbound_channels', prevConfig)]: 20,
 						[ifExists('pvf_checking_enabled', prevConfig)]: true,
 						max_validators: 300,
-						max_validators_per_core: 20,
-						scheduling_lookahead: 1,
+						[ifExists('max_validators_per_core', prevConfig)]: 20,
+						[ifExists('scheduling_lookahead', prevConfig)]: 1
 					},
 				},
 			},
