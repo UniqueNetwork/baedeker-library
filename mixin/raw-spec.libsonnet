@@ -1,11 +1,14 @@
 local m = import './spec.libsonnet';
+local {encodeGrandpaKeys} = import '../util/grandpaKeys.libsonnet';
+local strToHex(str) = cql.toHex(std.encodeUTF8(str));
 
 local
 	account(name) = cql.sr25519Seed(name),
 	unwrapNewtype(struct) = local names = std.objectFields(struct);
 		if std.length(names) == 1 then struct[names[0]]
 		else struct,
-	WELLKNOWN_CODE = '0x3a636f6465',
+	WELLKNOWN_CODE = strToHex(':code'),
+	WELLKNOWN_GRANDPA_AUTHORITIES = strToHex(':grandpa_authorities'),
 ;
 
 {
@@ -89,6 +92,13 @@ local
 			},
 			[if 'AuraExt' in prev._storage then 'AuraExt']+: {
 				Authorities: [],
+			},
+		},
+	},
+	setGrandpaKeys(keys): function(prev) prev {
+		_storage+: {
+			_unknown+: {
+				[if WELLKNOWN_GRANDPA_AUTHORITIES in prev._storage._unknown then WELLKNOWN_GRANDPA_AUTHORITIES]: encodeGrandpaKeys(keys),
 			},
 		},
 	},
@@ -201,6 +211,7 @@ local
 			$.addAuraAuthority(node.keys.aura),
 			for [?, node] in root.nodes
 		],
+		$.setGrandpaKeys([node.keys.gran for [?, node] in root.nodes]),
 		function(prev) bdk.mixer(if 'Session' in prev._storage then [
 			$.resetSessionKeys,
 			[
