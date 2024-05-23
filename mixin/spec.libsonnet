@@ -196,7 +196,7 @@
 	},
 
 	simplifyGenesisName(): function(prev)
-	local genesisKind = if 'runtimeGenesis' in prev.genesis then 'sane-1.5-runtimeGenesis' else if 'runtime_genesis_config' in prev.genesis.runtime then 'rococo' else 'sane';
+	local genesisKind = if 'runtimeGenesis' in prev.genesis then 'sane-1.5-runtimeGenesis' else if 'runtimeAndCode' in prev.genesis then 'deprecated-runtimeAndCode' else if 'runtime_genesis_config' in prev.genesis.runtime then 'rococo' else 'sane';
 	prev {
 		_genesisKind: genesisKind,
 	} +
@@ -213,6 +213,12 @@
 		_code::: prev.genesis.runtime.system.code,
 		genesis+: {
 			runtime:: error 'unsimplify genesis name first',
+		},
+	} else if genesisKind == 'deprecated-runtimeAndCode' then {
+		_genesis::: prev.genesis.runtimeAndCode.runtime + {system+: {code: '0x42424242'}},
+		_code::: prev.genesis.runtimeAndCode.code,
+		genesis+: {
+			runtimeAndCode::: error 'unsimplify genesis name first',
 		},
 	} else if genesisKind == 'sane-1.5-runtimeGenesis' then {
 		_runtimeGenesisKind::: if 'config' in prev.genesis.runtimeGenesis then 'config' else 'patch',
@@ -245,6 +251,17 @@
 			runtime::: prev._genesis + {
 				system+: {
 					code: prev._code,
+				},
+			},
+		},
+	} else if prev?._genesisKind == 'deprecated-runtimeAndCode' then assert prev._genesis.system.code == '0x42424242' : 'use _code for overriding code!'; {
+		genesis+: {
+			runtimeAndCode::: {
+				code: prev._code,
+				runtime: prev._genesis + {
+					system+: {
+						code:: error 'use _code for overriding code!',
+					},
 				},
 			},
 		},
