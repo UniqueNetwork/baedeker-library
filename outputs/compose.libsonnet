@@ -110,7 +110,7 @@ if old.genesis.raw.top != new.genesis.raw.top then error 'reconcilation disabled
 						command: [
 							'--name=%s' % node.hostname,
 							'--validator',
-							'--base-path=/chaindata',
+							'--base-path=%s' % node?.expectedDataPath ?? '/chaindata',
 							'--chain=/chain-spec.json',
 							'--keystore-path=/keystore',
 							'--node-key-file=/node-key',
@@ -148,7 +148,7 @@ if old.genesis.raw.top != new.genesis.raw.top then error 'reconcilation disabled
 							v.bind(bdk.toRelative(config.outputRoot, node.localKeystoreDir), '/keystore'),
 							v.bind(bdk.toRelative(config.outputRoot, node.localNodeFile), '/node-key'),
 							v.bind('specs/%s.json' % node._chain.path, '/chain-spec.json'),
-							v.volume('chaindata-%s' % node.hostname, '/chaindata', nocopy = false),
+							v.volume('chaindata-%s' % node.hostname, node?.expectedDataPath ?? '/chaindata', nocopy = false),
 						] + (if node._parentChain != null /*&& node.parentConnection == "internal"*/ then [
 							v.bind('specs/%s.json' % node._parentChain.path, '/chain-spec-parent.json'),
 							v.volume('chaindata-%s-parent' % node.hostname, '/chaindata-parent', nocopy = false),
