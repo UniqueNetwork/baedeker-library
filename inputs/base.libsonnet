@@ -32,6 +32,7 @@ local mergedChains = (prev + mixinAllChains(prev, function(chain, path) genesisM
 	nodes+: {
 		[nodename]+: local hostname = '%s-node-%s' % [path, nodename]; {
 			hostname: hostname,
+			parentConnection: node?.parentConnection ?? "internal",
 			wantedKeys:
 				if node?.wantedKeys == 'para' then k.paraWantedKeys($)
 				else if node?.wantedKeys == 'para-ed' then k.paraWantedKeys($, ed = true)

@@ -127,17 +127,19 @@ if old.genesis.raw.top != new.genesis.raw.top then error 'reconcilation disabled
 							'--unsafe-ws-external',
 						] else [
 							'--rpc-port=9944',
-						]) + (node?.extraArgs ?? []) + (if node._parentChain != null /*&& node.parentConnection == "internal"*/ then ([
+						]) + (node?.extraArgs ?? []) + (if node._parentChain != null then ([
 							'--',
-							'--base-path=/chaindata-parent',
 							'--chain=/chain-spec-parent.json',
 							'--execution=wasm',
-						] + (if node?.legacyRpc ?? false then [
+						] + (if node.parentConnection != "internal-samedir" then [
+							'--base-path=/chaindata-parent',
+						] else []) + (if node?.legacyRpc ?? false then [
 							'--rpc-port=9833',
 							'--ws-port=9844',
 						] else [
 							'--rpc-port=9844'
-						]) + (node?.extraArgsInternalParent ?? [])) else []),
+						]) + (node?.extraArgsInternalParent ?? []))
+						else []),
 						[if 'rpcPort' in node || 'extraPorts' in node then 'ports']: (if 'rpcPort' in node then [
 							'%s:9944' % node.rpcPort,
 						] else []) + (node?.extraPorts ?? []),
@@ -149,10 +151,12 @@ if old.genesis.raw.top != new.genesis.raw.top then error 'reconcilation disabled
 							v.bind(bdk.toRelative(config.outputRoot, node.localNodeFile), '/node-key'),
 							v.bind('specs/%s.json' % node._chain.path, '/chain-spec.json'),
 							v.volume('chaindata-%s' % node.hostname, node?.expectedDataPath ?? '/chaindata', nocopy = false),
-						] + (if node._parentChain != null /*&& node.parentConnection == "internal"*/ then [
-							v.bind('specs/%s.json' % node._parentChain.path, '/chain-spec-parent.json'),
-							v.volume('chaindata-%s-parent' % node.hostname, '/chaindata-parent', nocopy = false),
-						] else []),
+						] + (if node._parentChain != null then ([
+							v.bind('specs/%s.json' % node._parentChain.path, '/chain-spec-parent.json')
+						] + (if node.parentConnection != "internal-samedir" then [
+							v.volume('chaindata-%s-parent' % node.hostname, '/chaindata-parent', nocopy = false)
+						] else []
+						)) else []),
 					} + (node?.extraCompose ?? {}),
 					for node in flattenNodes(final)
 				},
@@ -167,8 +171,7 @@ if old.genesis.raw.top != new.genesis.raw.top then error 'reconcilation disabled
 				} + {
 					['chaindata-%s-parent' % node.hostname]: null,
 					for node in flattenNodes(final)
-					if node._parentChain != null
-					// if node.parentConnection == "internal"
+					if node._parentChain != null && node.parentConnection != "internal-samedir"
 				},
 			},
 			'docker-compose.yml': std.manifestYamlDoc(self._composeConfig, quote_keys = false, preserve_order = true) + '\n',
