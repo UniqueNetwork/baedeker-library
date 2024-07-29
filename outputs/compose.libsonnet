@@ -104,7 +104,6 @@ if old.genesis.raw.top != new.genesis.raw.top then error 'reconcilation disabled
 		} + {
 			local config = self._config,
 			_composeConfig+:: {
-				version: '3.4',
 				services+: {
 					[node.hostname]: binToObj(node.bin, config) + {
 						command: [
@@ -118,7 +117,6 @@ if old.genesis.raw.top != new.genesis.raw.top then error 'reconcilation disabled
 							// Removed in new versions of substrate, will not escape docker host network anyways
 							// '--no-private-ipv4',
 							'--detailed-log-output',
-							'--execution=wasm',
 							'--unsafe-rpc-external',
 							'--rpc-cors=all',
 						] + (if node?.legacyRpc ?? false then [
@@ -130,7 +128,6 @@ if old.genesis.raw.top != new.genesis.raw.top then error 'reconcilation disabled
 						]) + (node?.extraArgs ?? []) + (if node._parentChain != null then ([
 							'--',
 							'--chain=/chain-spec-parent.json',
-							'--execution=wasm',
 						] + (if node.parentConnection != "internal-samedir" then [
 							'--base-path=/chaindata-parent',
 						] else []) + (if node?.legacyRpc ?? false then [
