@@ -12,7 +12,7 @@ function(prev) prev {
 					'polkadot-apps': {
 						// TODO: We can provide custom endpoint list to this container using ENV. But changes to this file are needed.
 						// https://github.com/polkadot-js/apps/blob/0366991f685a80147f46eb69a23285acb15bc6b7/packages/apps-config/src/endpoints/development.ts#L19
-						image: 'jacogr/polkadot-js-apps:latest@sha256:b052771165a82833f68b569a74a198b09d8e1d0cce097e804cf60bc06a4faf7b',
+						image: 'jacogr/polkadot-js-apps:latest@sha256:ff7dde7cc720f50f47b77a5d481a64b9e64840b0b0c0836d057f075c57aa2e07',
 					},
 				},
 			},
