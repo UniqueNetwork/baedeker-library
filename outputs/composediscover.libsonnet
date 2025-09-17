@@ -25,6 +25,12 @@ prev + {
 			for chain in flattenChains(prev)
 			if 'paraId' in chain
 			for node in flattenNodes(chain)
+		] + [
+			'%s_%s_KEY=%s' % [std.strReplace(std.asciiUpper(node.hostname), '-', '_'), std.asciiUpper(key), node.keys[key]]
+			for chain in flattenChains(prev)
+			if 'paraId' in chain
+			for node in flattenNodes(chain)
+			for key in std.objectFields(node.keys)
 		] + ['']),
 	},
 }
